@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliSignal | AI-Based Adaptive Traffic Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --accent: #ff007a;
+            --bg: #0b0e14;
+            --surface: rgba(26, 31, 46, 0.7);
+            --text: #e2e8f0;
+            --success: #00ff88;
+            --warning: #f7941d;
+            --danger: #ff4d4d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1a1f2e 0%, #0b0e14 100%);
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 80px;
+            height: 100vh;
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 2rem;
+            z-index: 100;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            margin-bottom: 3rem;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+        }
+
+        /* Main Content */
+        main {
+            margin-left: 80px;
+            padding: 2rem;
+            max-width: 1600px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .title-group h1 {
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--success);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .video-container {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-feed {
+            width: 100%;
+            border-radius: 12px;
+            background: #000;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .analytics-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Stat Cards */
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 242, 254, 0.3);
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .signal-indicator {
+            width: 100%;
+            height: 100px;
+            background: #111;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .light {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            opacity: 0.2;
+            box-shadow: 0 0 0px transparent;
+            transition: all 0.3s ease;
+        }
+
+        .light.red.active {
+            background: #ff4d4d;
+            opacity: 1;
+            box-shadow: 0 0 20px #ff4d4d;
+        }
+
+        .light.yellow.active {
+            background: #f7941d;
+            opacity: 1;
+            box-shadow: 0 0 20px #f7941d;
+        }
+
+        .light.green.active {
+            background: #00ff88;
+            opacity: 1;
+            box-shadow: 0 0 20px #00ff88;
+        }
+
+        /* Lane Meter */
+        .lane-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .lane {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+
+        .lane-bar {
+            height: 6px;
+            background: #222;
+            border-radius: 3px;
+            width: 60%;
+            overflow: hidden;
+        }
+
+        .lane-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .emergency-alert {
+            display: none;
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--danger);
+            text-align: center;
+            font-weight: 700;
+            margin-top: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo"></div>
+    </div>
+
+    <main>
+        <header>
+            <div class="title-group">
+                <h1>IntelliSignal Command Center</h1>
+                <p style="color: #64748b;">AI-Driven Adaptive Traffic Control Interface v2.4</p>
+            </div>
+            <div class="status-badge">
+                <div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></div>
+                SYSTEM ACTIVE
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="video-container">
+                <div class="card-label">Live AI Vision Feed</div>
+                <img id="videoStream" class="video-feed" src="/video_feed" alt="Video Stream">
+                <div id="emergencyAlert" class="emergency-alert">EMERGENCY VEHICLE DETECTED - SIGNAL OVERRIDE ACTIVATED
+                </div>
+            </div>
+
+            <div class="analytics-panel">
+                <div class="card">
+                    <div class="card-label">Traffic Density</div>
+                    <div id="densityText" class="card-value" style="color: var(--success);">LOW</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">Current Signal Timing</div>
+                    <div id="signalTime" class="card-value">20<span style="font-size: 1rem; color: #64748b;">s</span>
+                    </div>
+                    <div id="priorityLane"
+                        style="font-size: 0.9rem; color: var(--primary); font-weight: 600; margin-top: 5px;">ACTIVE FOR:
+                        ALL</div>
+                    <div class="signal-indicator">
+                        <div id="lightRed" class="light red"></div>
+                        <div id="lightYellow" class="light yellow"></div>
+                        <div id="lightGreen" class="light green active"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">Lane Analysis</div>
+                    <div class="lane-box">
+                        <div class="lane">
+                            <span>Lane 1</span>
+                            <div class="lane-bar">
+                                <div id="laneFill1" class="lane-fill"></div>
+                            </div>
+                            <span id="laneVal1">0</span>
+                        </div>
+                        <div class="lane">
+                            <span>Lane 2</span>
+                            <div class="lane-bar">
+                                <div id="laneFill2" class="lane-fill"></div>
+                            </div>
+                            <span id="laneVal2">0</span>
+                        </div>
+                        <div class="lane">
+                            <span>Lane 3</span>
+                            <div class="lane-bar">
+                                <div id="laneFill3" class="lane-fill"></div>
+                            </div>
+                            <span id="laneVal3">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">Volume & Analytics</div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                        <div id="totalCount" class="card-value">0</div>
+                        <div id="predictionText" style="font-size: 0.85rem; color: var(--secondary);">Pred: 0.00</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-label">System Health</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.9rem; color: #94a3b8;">Uptime: <span id="uptime"
+                                style="color: #fff;">00:00</span></span>
+                        <div style="display: flex; gap: 4px;">
+                            <div style="width: 12px; height: 12px; background: var(--success); border-radius: 2px;">
+                            </div>
+                            <div style="width: 12px; height: 12px; background: var(--success); border-radius: 2px;">
+                            </div>
+                            <div
+                                style="width: 12px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 2px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="flex-grow: 1;">
+                    <div class="card-label">Smart City Telemetry Logs</div>
+                    <div id="logConsole"
+                        style="height: 150px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: var(--success); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                        [SYSTEM] Next-Gen Adaptive Control Online...<br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let startTime = Date.now();
+
+        function updateUptime() {
+            const diff = Math.floor((Date.now() - startTime) / 1000);
+            const m = Math.floor(diff / 60).toString().padStart(2, '0');
+            const s = (diff % 60).toString().padStart(2, '0');
+            document.getElementById('uptime').innerText = `${m}:${s}`;
+        }
+        setInterval(updateUptime, 1000);
+
+        // Update stats via SSE or polling
+        async function updateStats() {
+            try {
+                const response = await fetch('/stats');
+                const stats = await response.json();
+
+                // Update text values
+                document.getElementById('totalCount').innerText = stats.total;
+                document.getElementById('densityText').innerText = stats.density;
+                document.getElementById('signalTime').innerHTML = `${stats.signal_time}<span style="font-size: 1rem; color: #64748b;">s</span>`;
+                document.getElementById('priorityLane').innerText = `ACTIVE FOR: ${stats.priority_lane.toUpperCase()}`;
+                if (stats.prediction) {
+                    document.getElementById('predictionText').innerText = `Predicted next: ${stats.prediction.toFixed(2)}`;
+                }
+
+                // Update lane bars
+                const max = Math.max(stats.lane_counts[0], stats.lane_counts[1], stats.lane_counts[2], 1);
+                document.getElementById('laneFill1').style.width = (stats.lane_counts[0] / max * 100) + '%';
+                document.getElementById('laneVal1').innerText = stats.lane_counts[0];
+                document.getElementById('laneFill2').style.width = (stats.lane_counts[1] / max * 100) + '%';
+                document.getElementById('laneVal2').innerText = stats.lane_counts[1];
+                document.getElementById('laneFill3').style.width = (stats.lane_counts[2] / max * 100) + '%';
+                document.getElementById('laneVal3').innerText = stats.lane_counts[2];
+
+                // Update signal lights
+                const density = stats.density;
+                const lights = { red: 'lightRed', yellow: 'lightYellow', green: 'lightGreen' };
+                Object.values(lights).forEach(id => document.getElementById(id).classList.remove('active'));
+
+                if (density === 'EMERGENCY') {
+                    document.getElementById('lightRed').classList.add('active');
+                    document.getElementById('emergencyAlert').style.display = 'block';
+                } else if (density === 'HIGH') {
+                    document.getElementById('lightRed').classList.add('active');
+                    document.getElementById('emergencyAlert').style.display = 'none';
+                } else if (density === 'MEDIUM') {
+                    document.getElementById('lightYellow').classList.add('active');
+                    document.getElementById('emergencyAlert').style.display = 'none';
+                } else {
+                    document.getElementById('lightGreen').classList.add('active');
+                    document.getElementById('emergencyAlert').style.display = 'none';
+                }
+
+                // Update colors based on density
+                const colors = { LOW: '#00ff88', MEDIUM: '#f7941d', HIGH: '#ff4d4d', EMERGENCY: '#00f2fe' };
+                document.getElementById('densityText').style.color = colors[density] || '#fff';
+
+                // Update Telemetry Logs
+                if (stats.system_log) {
+                    const console = document.getElementById('logConsole');
+                    const timestamp = new Date().toLocaleTimeString();
+                    const logEntry = `[${timestamp}] ${stats.system_log}`;
+
+                    // Only update if the log changed to prevent spamming
+                    if (!console.innerHTML.includes(stats.system_log.substring(0, 20))) {
+                        console.innerHTML = `<div>${logEntry}</div>` + console.innerHTML;
+                    }
+                }
+
+            } catch (e) {
+                console.error("Failed to fetch stats", e);
+            }
+        }
+
+        // Poll every 500ms for stats
+        setInterval(updateStats, 500);
+    </script>
+</body>
+
+</html>
